@@ -1,15 +1,16 @@
 FROM python:3.6.4-alpine3.7
- 
-# install python build tools and dependencies
-RUN apk add --no-cache libstdc++
-RUN apk add --no-cache --virtual .build-deps \
-	    gcc \
-	    build-base
 
-# install numpy first            
-RUN pip install --no-cache numpy
+# install build tools
+RUN apk add --no-cache build-base python3-dev  &&\
+    pip install --upgrade twine travis pip setuptools wheel virtualenv
 
-# add useful sym link and install pandas and scipy
+# install numpy package first
 RUN ln -s /usr/include/locale.h /usr/include/xlocale.h &&\
-    pip install --no-cache pandas scipy &&\ 
+    pip install --no-cache numpy
+
+# install pandas and scipy packages and required dependencies
+RUN apk add --no-cache --virtual .build-deps gcc openblas-dev &&\
+    pip install --no-cache pandas scipy &&\
     apk del .build-deps
+
+CMD ["python"]
